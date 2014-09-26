@@ -1,0 +1,72 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Example usage: msbuild someproject.csproj /p:AssemblyVersion=1.2.3.4 /p:AssemblyFileVersion=2.3.4.5 /p:AssemblyInformationVersion="Codename Frank" -->
+
+  <Target Name="OverrideAndroidManifestVersion" BeforeTargets="_ValidateAndroidPackageProperties">
+    <!-- CallTarget technique used to allow version properties to be set by another target -->
+    <CallTarget Targets="CoreOverrideAndroidManifestVersion"
+                Condition=" '$(AssemblyVersion)'!='' or '$(AssemblyFileVersion)'!='' or '$(AssemblyInformationalVersion)'!='' " />
+  </Target>
+
+  <Target Name="CoreOverrideAndroidManifestVersion">
+
+    <PropertyGroup>
+      <AndroidManifestPath>Properties\AndroidManifest.xml</AndroidManifestPath>
+    </PropertyGroup>
+
+    <Error Condition="'$(AssemblyVersion)'!='' and '$([System.Text.RegularExpressions.Regex]::IsMatch(&quot;$(AssemblyVersion)&quot;,&quot;^\d+\.\d+\.\d+\.\d+$&quot;))' == false"
+           Text="AssemblyVersion '$(AssemblyVersion)' must be of the form 'n.n.n.n' where 'n' is a positive integer."/>
+
+    <Message Text="Setting assembly version to '$(AssemblyVersion)'" Condition="'$(AssemblyVersion)'!=''"/>
+
+    <UpdateAndroidManifestVersion Version="$(AssemblyVersion)" AndroidManifestPath="$(AndroidManifestPath)" />
+
+    <Message Text="Android Manifest is at $(AndroidManifest)" />
+
+    <PropertyGroup>
+      <!-- <AndroidManifest Remove="$(AndroidManifestPath)" /> -->
+      <AndroidManifest>$(AndroidManifestPath).versioned.xml</AndroidManifest>
+      <FooBar>$(AndroidManifestPath).versioned.xml</FooBar>
+      <!-- <FileWrites Include="$(AndroidManifestPath).versioned.xml" /> -->
+    </PropertyGroup>
+
+    <Message Text="Android Manifest is at $(AndroidManifest)" />
+    <Message Text="FooBar is at $(FooBar)" />
+
+  </Target>
+
+  <UsingTask TaskName="UpdateAndroidManifestVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <AndroidManifestPath ParameterType="System.String" Required="true" />
+      <Version ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+
+    <Task>
+      <Reference Include="System.Xml" />
+      <Reference Include="System.Xml.Linq" />
+      <Using Namespace="System.Xml.Linq" />
+      <Using Namespace="System.IO" />
+      <Code Type="Fragment" Language="cs">
+<![CDATA[
+if (!File.Exists(AndroidManifestPath)) {
+  Log.LogError(string.Format("The android manifest could not be located at path '{0}'", AndroidManifestPath));
+  return false;
+}
+  
+var doc = XDocument.Load(AndroidManifestPath);
+  
+XNamespace ns = "http://schemas.android.com/apk/res/android";
+  
+var identity = doc.Root;
+  
+identity.Attribute(ns + "versionName").Value = Version;
+identity.Attribute(ns + "versionCode").Value = Version.Replace(".", "");
+  
+doc.Save(AndroidManifestPath + ".versioned.xml");
+return true;
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  
+</Project>

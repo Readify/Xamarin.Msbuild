@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Readify.Xamarin.MSBuild.WindowsPhone</id>
+    <version>1.0.0</version>
+    <authors>Readify</authors>
+    <owners>Readify</owners>
+    <licenseUrl>https://github.com/Readify/Readify.Xamarin.MSBuild/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Readify/Readify.Xamarin.MSBuild</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Some WindowsPhone MSBuild targets</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2014</copyright>
+    <tags>xamarin WindowsPhone xamarin-WindowsPhone MSBuild</tags>
+  </metadata>
+  <files>
+    <file src="Readify.Xamarin.MSBuild.WindowsPhone.targets" target="build\Readify.Xamarin.MSBuild.WindowsPhone.targets" />
+  </files>
+</package>
