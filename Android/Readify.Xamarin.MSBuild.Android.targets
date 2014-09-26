@@ -1,11 +1,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <!-- Example usage: msbuild someproject.csproj /p:AssemblyVersion=1.2.3.4 /p:AssemblyFileVersion=2.3.4.5 /p:AssemblyInformationVersion="Codename Frank" -->
+  <!-- Example usage: msbuild someproject.csproj /p:AppVersion=1.2.3.4 -->
 
   <Target Name="OverrideAndroidManifestVersion" BeforeTargets="_ValidateAndroidPackageProperties">
     <!-- CallTarget technique used to allow version properties to be set by another target -->
     <CallTarget Targets="CoreOverrideAndroidManifestVersion"
-                Condition=" '$(AssemblyVersion)'!='' or '$(AssemblyFileVersion)'!='' or '$(AssemblyInformationalVersion)'!='' " />
+                Condition=" '$(AppVersion)'!='' " />
   </Target>
 
   <Target Name="CoreOverrideAndroidManifestVersion">
@@ -14,12 +14,12 @@
       <AndroidManifestPath>Properties\AndroidManifest.xml</AndroidManifestPath>
     </PropertyGroup>
 
-    <Error Condition="'$(AssemblyVersion)'!='' and '$([System.Text.RegularExpressions.Regex]::IsMatch(&quot;$(AssemblyVersion)&quot;,&quot;^\d+\.\d+\.\d+\.\d+$&quot;))' == false"
-           Text="AssemblyVersion '$(AssemblyVersion)' must be of the form 'n.n.n.n' where 'n' is a positive integer."/>
+    <Error Condition="'$(AppVersion)'!='' and '$([System.Text.RegularExpressions.Regex]::IsMatch(&quot;$(AppVersion)&quot;,&quot;^\d+\.\d+\.\d+\.\d+$&quot;))' == false"
+           Text="AppVersion '$(AppVersion)' must be of the form 'n.n.n.n' where 'n' is a positive integer."/>
 
-    <Message Text="Setting assembly version to '$(AssemblyVersion)'" Condition="'$(AssemblyVersion)'!=''"/>
+    <Message Text="Setting AppVersion version to '$(AppVersion)'" Condition="'$(AppVersion)'!=''"/>
 
-    <UpdateAndroidManifestVersion Version="$(AssemblyVersion)" AndroidManifestPath="$(AndroidManifestPath)" />
+    <UpdateAndroidManifestVersion Version="$(AppVersion)" AndroidManifestPath="$(AndroidManifestPath)" />
 
     <Message Text="Android Manifest is at $(AndroidManifest)" />
 
